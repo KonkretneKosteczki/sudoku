@@ -16,7 +16,10 @@ class Home extends Component {
                     .apply(null, {length: 9})
                     .map(Number.call, Number)
                     .map(index => cookies.get(`gameSaveData${index}`))
+                    .map(cookie => this.decryptCookie(cookie))
             }
+            // console.log(this.state.gameSaveData[0]);
+            // console.log(this.decryptCookie(this.encryptCookie(this.state.gameSaveData[0])));
         } else {
             this.state = {
                 showingAlert: false,
@@ -27,11 +30,36 @@ class Home extends Component {
         this.saveGameState = this.saveGameState.bind(this);
     }
 
+    encryptCookie(data) {
+        return data.fields.map(field => (JSON.parse(JSON.stringify({
+            e: field.editable ? 1 : undefined,
+            i: field.invalid ? 1 : undefined,
+            v: field.value
+        }))))
+    }
+
+    decryptCookie(data) {
+        // console.log(data, typeof data);
+        // console.log({fields: data.map(field => ({
+        //     editable: !!field.e,
+        //     selected: false,
+        //     invalid: !!field.i,
+        //     value: field.v
+        // }))})
+        return {fields: data.map(field => ({
+            editable: !!field.e,
+            selected: false,
+            invalid: !!field.i,
+            value: field.v
+        }))}
+    }
+
     saveGameState() {
         let i = 0;
         this.state.currentSave.squares.forEach(square => {
             square.fields.forEach(field => field.selected = false);
-            cookies.set(`gameSaveData${i++}`, square, {path: '/'});
+            cookies.set(`gameSaveData${i++}`, this.encryptCookie(square), {path: '/'});
+            // cookies.set(`gameSaveData${i++}`, square, {path: '/'});
         });
         cookies.set("gameDifficulty", this.props.match.params.difficulty, {path: '/'});
         this.setState({showingAlert: true}, () => {

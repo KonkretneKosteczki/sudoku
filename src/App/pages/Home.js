@@ -33,6 +33,7 @@ class Home extends Component {
             square.fields.forEach(field => field.selected = false);
             cookies.set(`gameSaveData${i++}`, square, {path: '/'});
         });
+        cookies.set("gameDifficulty", this.props.match.params.difficulty, {path: '/'});
         this.setState({showingAlert: true}, () => {
             setTimeout(() => {
                 this.setState({
